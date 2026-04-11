@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText:  PyPSA-Earth and PyPSA-Eur Authors
+#
+# SPDX-License-Identifier: CC0-1.0
+
+version: 0.8.0
+tutorial: false
+
+
+countries: ["KE"]
+
+enable:
+  retrieve_databundle: true
+  retrieve_databundle_sector: true
+  build_natura_raster: false  # Bypasses the Windows [WinError 5] issue
+  progress_bar: false
+  build_cutouts: true
+  retreive_cost_data: true
+
+clustering:
+  spatial:
+    clusters: [2]
+  temporal:
+    resolution_sector: 168h # Aggregating to weekly blocks if necessary, or
+    segments: 10 # Number of representative segments
+
+scenario:
+  simpl: [""]
+  ll: ['copt']
+  clusters: [2]
+  opts: [Co2L]
+
+snapshots:
+  start: "2013-03-1"
+  end: "2013-03-8"
+  inclusive: "left"
+
+# clean_osm_data_options:
+#   threshold_voltage: 35000
+
+# base_network:
+#   min_voltage_substation_offshore: 35000
+#   min_voltage_rebase_voltage: 35000
+
+
+electricity:
+  extendable_carriers:
+    Generator: [onwind, solar, OCGT, geothermal]
+    StorageUnit: [battery]
+
+
+solving:
+  options:
+    load_shedding: true
+  solver:
+    name: gurobi
+    options: gurobi-default
