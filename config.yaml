@@ -1,0 +1,94 @@
+# SPDX-FileCopyrightText:  PyPSA-Earth and PyPSA-Eur Authors
+#
+# SPDX-License-Identifier: CC0-1.0
+
+version: 0.8.0
+tutorial: false
+
+run:
+  name: "2030_scenenario"
+
+countries: ["KE"]
+
+scenario:
+  simpl: ['']
+  ll: ['copt']  #cost optimality
+  clusters: [20]    # MUST be at least 2
+  opts: [Co2L-3h]
+  planning_horizons: [2030]
+
+clustering:
+  spatial:
+    clusters: [20]
+    
+
+load_options:
+  ssp: "ssp2-2.6"
+  prediction_year: 2030
+  scale: 1.0
+
+enable:
+  retrieve_databundle: false
+  build_natura_raster: false # Bypasses the Windows [WinError 5] issue
+  progress_bar: true
+  build_cutouts: false
+  retrieve_cost_data: false
+
+atlite:
+  nprocesses: 4
+  cutouts:
+    cutout-2013-era5:
+      module: era5
+
+renewable:
+  onwind:
+    cutout: cutout-2013-era5
+    capacity_per_sqkm: 3        # MW per km² of eligible land
+    natura: true                # respect protected area exclusions
+    copernicus:
+      grid_codes: [12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
+    clip_p_max_pu: 0.01         # minimum usable capacity factor
+
+  solar:
+    cutout: cutout-2013-era5
+    capacity_per_sqkm: 4.6
+    natura: true
+    copernicus:
+      grid_codes: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+
+#temporal range for the historical weather data
+snapshots:
+  start: "2013-01-01"
+  end: "2014-01-01" # PyPSA can run the full year hourly
+  inclusive: "left"
+
+costs:
+  year: 2030
+  version: v0.5.0
+  fill_values:
+    discount rate: 0.089
+
+
+electricity:
+  custom_powerplants: "merge"
+  estimate_renewable_capacities:
+    enable: true
+    stats: "irena"
+  extendable_carriers:
+    Generator: [solar, onwind, geothermal, hydro, OCGT, coal] # Remove H2 and offwind
+    StorageUnit: [battery]
+    Store: [battery]
+  operational_reserve:
+    activate: true
+    epsilon_load: 0.10
+  p_threshold_drop_isolated: 0.0    # drop buses with zero connected capacity
+  p_threshold_merge_isolated: 500   # merge islands below 500 MW into nearest bus
+
+
+
+solving:
+  options:
+    load_shedding: false
+  solver:
+    name: gurobi
+    options: gurobi-default

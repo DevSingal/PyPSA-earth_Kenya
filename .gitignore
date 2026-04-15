@@ -16,7 +16,6 @@
 **/pbf
 *.pbf
 *.zip
-*.png
 *.done
 *.tif
 *.csv
@@ -28,7 +27,6 @@
 *~
 
 # Specific untracked files
-config.yaml
 dag.svg
 gurobi.log
 gadm_shapes.geojson
@@ -48,7 +46,6 @@ notebooks
 notebooks/
 pypsa/
 resources/
-results/
 .snakemake/
 slurm
 scripts/old
