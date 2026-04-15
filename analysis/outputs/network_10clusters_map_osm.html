@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_e4dc4de0fa24088d5e33c340590078a2 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+                 <div style="position: fixed; 
+                     top: 10px; left: 50px; width: 400px; height: 80px; 
+                     background-color: white; border:2px solid grey; z-index:9999; 
+                     font-size:16px; font-weight: bold; padding: 10px">
+                 Kenya - Network Clusters and Installed Capacity Distribution
+                 </div>
+                 
+    
+            <div class="folium-map" id="map_e4dc4de0fa24088d5e33c340590078a2" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_e4dc4de0fa24088d5e33c340590078a2 = L.map(
+                "map_e4dc4de0fa24088d5e33c340590078a2",
+                {
+                    center: [-0.8243055, 36.791713333333334],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 6,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_97d69db10e9c0db0ee6f69db8a514b6c = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_97d69db10e9c0db0ee6f69db8a514b6c.addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var circle_marker_35ccf0336c7b0a8aa5c00014f45b5bb3 = L.circleMarker(
+                [-2.2281, 37.7254],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 0.7067938542359963, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_8b6d2b506d556473b88d40942f36ffff = L.marker(
+                [-2.2281, 37.7254],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_5a53314e1d3ecfa5d4f7e29f0db3ab91 = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 0\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_8a2626fcbcdcf978d5c08e60957a3476 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_98647edd656080693061dc71e5a10b84 = $(`<div id="html_98647edd656080693061dc71e5a10b84" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 0</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">9.99 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 2</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">7.52 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">75.2%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">2.47 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">24.8%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_8a2626fcbcdcf978d5c08e60957a3476.setContent(html_98647edd656080693061dc71e5a10b84);
+            
+        
+
+        marker_8b6d2b506d556473b88d40942f36ffff.bindPopup(popup_8a2626fcbcdcf978d5c08e60957a3476)
+        ;
+
+        
+    
+    
+                marker_8b6d2b506d556473b88d40942f36ffff.setIcon(div_icon_5a53314e1d3ecfa5d4f7e29f0db3ab91);
+            
+    
+            var circle_marker_e0e5a476971e70984ce32f54d7faf650 = L.circleMarker(
+                [0.7560500000000001, 35.15855],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 0.16194063364584468, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_24f13b9a72b9b98ce5dc33c48602c3ae = L.marker(
+                [0.7560500000000001, 35.15855],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_df8c7a11467be0756a5f48bca574bb63 = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 1\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_e2a890dfc19f08cee02d933e52369365 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_12a6de78387dfc47ad468d90957dfbca = $(`<div id="html_12a6de78387dfc47ad468d90957dfbca" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 1</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">0.52 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 2</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">0.52 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">100.0%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">0.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">0.0%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_e2a890dfc19f08cee02d933e52369365.setContent(html_12a6de78387dfc47ad468d90957dfbca);
+            
+        
+
+        marker_24f13b9a72b9b98ce5dc33c48602c3ae.bindPopup(popup_e2a890dfc19f08cee02d933e52369365)
+        ;
+
+        
+    
+    
+                marker_24f13b9a72b9b98ce5dc33c48602c3ae.setIcon(div_icon_df8c7a11467be0756a5f48bca574bb63);
+            
+    
+            var circle_marker_c95c37e2a7617fe735413e5b4c8cf992 = L.circleMarker(
+                [-0.769775, 37.744875],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 5.250296693286785, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_e5ce1f7bb1d7c3715ade973b376ee24b = L.marker(
+                [-0.769775, 37.744875],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_23ff40d081605ad20e310a44c9ca2dd2 = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 2\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_9aa182792454cbf9e97193062086a3fc = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_30155e8b401817f754134a94b3ec6a8e = $(`<div id="html_30155e8b401817f754134a94b3ec6a8e" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 2</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">551.31 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 3</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">ror</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">225.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">40.8%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">171.12 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">31.0%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">155.20 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">28.2%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_9aa182792454cbf9e97193062086a3fc.setContent(html_30155e8b401817f754134a94b3ec6a8e);
+            
+        
+
+        marker_e5ce1f7bb1d7c3715ade973b376ee24b.bindPopup(popup_9aa182792454cbf9e97193062086a3fc)
+        ;
+
+        
+    
+    
+                marker_e5ce1f7bb1d7c3715ade973b376ee24b.setIcon(div_icon_23ff40d081605ad20e310a44c9ca2dd2);
+            
+    
+            var circle_marker_6e97a4b85d31c91d9621d0b69d3a4e24 = L.circleMarker(
+                [-3.74885, 39.253725],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 4.819942290647052, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_ae20f75406be2922f01475b16a3213b3 = L.marker(
+                [-3.74885, 39.253725],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_a44d717a887530c2197bace4417cb9cc = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 3\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_d79bfaf2cf949425741149968869292c = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_2125544b3db73bf90d5c9ced1edddc59 = $(`<div id="html_2125544b3db73bf90d5c9ced1edddc59" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 3</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">464.64 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 6</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">oil</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">275.90 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">59.4%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">77.48 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">16.7%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">57.36 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">12.3%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">CCGT</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">53.90 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">11.6%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">offwind-ac</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">0.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">0.0%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">offwind-dc</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">0.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">0.0%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_d79bfaf2cf949425741149968869292c.setContent(html_2125544b3db73bf90d5c9ced1edddc59);
+            
+        
+
+        marker_ae20f75406be2922f01475b16a3213b3.bindPopup(popup_d79bfaf2cf949425741149968869292c)
+        ;
+
+        
+    
+    
+                marker_ae20f75406be2922f01475b16a3213b3.setIcon(div_icon_a44d717a887530c2197bace4417cb9cc);
+            
+    
+            var circle_marker_2fb1c66a39df91ab08c84b349c4570eb = L.circleMarker(
+                [-0.7058999999999999, 36.26298333333333],
+                {"bubblingMouseEvents": true, "color": "darkred", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "darkred", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 6.8667419717757605, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_266fb25aab673304ed5d382366ae1936 = L.marker(
+                [-0.7058999999999999, 36.26298333333333],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_e4ab3f51ccf948336945db7464a1626e = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 4\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_b2fd044907f66584560c0ea11d481aba = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_00523f4c7c9caa9c466f929f19e94f61 = $(`<div id="html_00523f4c7c9caa9c466f929f19e94f61" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 4</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">943.04 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 3</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">geothermal</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">591.50 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">62.7%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">184.87 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">19.6%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">166.68 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">17.7%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_b2fd044907f66584560c0ea11d481aba.setContent(html_00523f4c7c9caa9c466f929f19e94f61);
+            
+        
+
+        marker_266fb25aab673304ed5d382366ae1936.bindPopup(popup_b2fd044907f66584560c0ea11d481aba)
+        ;
+
+        
+    
+    
+                marker_266fb25aab673304ed5d382366ae1936.setIcon(div_icon_e4ab3f51ccf948336945db7464a1626e);
+            
+    
+            var circle_marker_28003e46463dcaaa0fb4f2944d05c465 = L.circleMarker(
+                [-0.0288, 35.14226],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 3.4886887725942275, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_6eadff1d55729879405300cd48221903 = L.marker(
+                [-0.0288, 35.14226],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_34c1eceb08c4949792000f1827270581 = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 5\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_9a86d28bb16dba40fed3c9cdeb0b4aef = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_76b4c60dde78713016a6be389e78cdd9 = $(`<div id="html_76b4c60dde78713016a6be389e78cdd9" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 5</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">243.42 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 4</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">ror</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">173.44 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">71.3%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">oil</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">60.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">24.6%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">9.40 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">3.9%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">0.57 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">0.2%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_9a86d28bb16dba40fed3c9cdeb0b4aef.setContent(html_76b4c60dde78713016a6be389e78cdd9);
+            
+        
+
+        marker_6eadff1d55729879405300cd48221903.bindPopup(popup_9a86d28bb16dba40fed3c9cdeb0b4aef)
+        ;
+
+        
+    
+    
+                marker_6eadff1d55729879405300cd48221903.setIcon(div_icon_34c1eceb08c4949792000f1827270581);
+            
+    
+            var circle_marker_dedee9be0d5fdd1d23d8c4dad62a36d5 = L.circleMarker(
+                [-1.36471, 36.945589999999996],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 4.634256018657666, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_d5d37de9c32b89522bdc11f7429a40b6 = L.marker(
+                [-1.36471, 36.945589999999996],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_66b4c615fa9ef99cf92ef50d4adfb28e = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 6\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_ff75984d94cfea5e703112321fbd2b35 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_d113fabc2829d61352f69729def73983 = $(`<div id="html_d113fabc2829d61352f69729def73983" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 6</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">429.53 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 3</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">oil</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">412.20 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">96.0%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">14.47 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">3.4%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">2.86 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">0.7%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_ff75984d94cfea5e703112321fbd2b35.setContent(html_d113fabc2829d61352f69729def73983);
+            
+        
+
+        marker_d5d37de9c32b89522bdc11f7429a40b6.bindPopup(popup_ff75984d94cfea5e703112321fbd2b35)
+        ;
+
+        
+    
+    
+                marker_d5d37de9c32b89522bdc11f7429a40b6.setIcon(div_icon_66b4c615fa9ef99cf92ef50d4adfb28e);
+            
+    
+            var circle_marker_a4f8b4dfecef3970446e34c377c4e9b7 = L.circleMarker(
+                [1.6803, 35.3606],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 1.828923688886036, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_a716f3db762b09c5f2d257ef3bbfb947 = L.marker(
+                [1.6803, 35.3606],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_d4f3364dbc71e2e4717145aa1866c11b = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 7\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_6c7de9df5559d36b224ce802210062d2 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_dc504943eed508505360ec20427a9dca = $(`<div id="html_dc504943eed508505360ec20427a9dca" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 7</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">66.90 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 2</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">50.21 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">75.1%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">16.69 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">24.9%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_6c7de9df5559d36b224ce802210062d2.setContent(html_dc504943eed508505360ec20427a9dca);
+            
+        
+
+        marker_a716f3db762b09c5f2d257ef3bbfb947.bindPopup(popup_6c7de9df5559d36b224ce802210062d2)
+        ;
+
+        
+    
+    
+                marker_a716f3db762b09c5f2d257ef3bbfb947.setIcon(div_icon_d4f3364dbc71e2e4717145aa1866c11b);
+            
+    
+            var circle_marker_a1ca08677e72bee8238c555ef7ec32e6 = L.circleMarker(
+                [-0.14362, 37.312799999999996],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 1.6380451564384644, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_1b7b5a8d44f8099556a6e9b3167b3ed5 = L.marker(
+                [-0.14362, 37.312799999999996],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_94ac6d11400e83b9c4ae68087c82590e = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE0 8\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_4ed66e6189fcb4d0c9cf2fa9be0778dd = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_239a7c313cf62bfb0f58ba02febc5118 = $(`<div id="html_239a7c313cf62bfb0f58ba02febc5118" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE0 8</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">53.66 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 3</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">ror</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">20.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">37.3%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">18.66 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">34.8%</td>                     </tr>                                      <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">15.01 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">28.0%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_4ed66e6189fcb4d0c9cf2fa9be0778dd.setContent(html_239a7c313cf62bfb0f58ba02febc5118);
+            
+        
+
+        marker_1b7b5a8d44f8099556a6e9b3167b3ed5.bindPopup(popup_4ed66e6189fcb4d0c9cf2fa9be0778dd)
+        ;
+
+        
+    
+    
+                marker_1b7b5a8d44f8099556a6e9b3167b3ed5.setIcon(div_icon_94ac6d11400e83b9c4ae68087c82590e);
+            
+    
+            var circle_marker_fc654e8ce9fbea0785019b2d05ae7998 = L.circleMarker(
+                [-1.68965, 37.01035],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "yellow", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 0.8, "radius": 0.7431199480442872, "stroke": true, "weight": 2}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var marker_078b19f01cfcf529645ee73381de0706 = L.marker(
+                [-1.68965, 37.01035],
+                {
+}
+            ).addTo(map_e4dc4de0fa24088d5e33c340590078a2);
+        
+    
+            var div_icon_789ae0f8e02d283de7d347cab115b7cd = L.divIcon({
+  "html": "\n            \u003cdiv style=\u0027font-size: 12px; \n                        font-weight: bold; \n                        color: black; \n                        text-align: center; \n                        text-shadow: 1px 1px 2px rgba(0,0,0,0.6);\n                        pointer-events: auto;\n                        cursor: pointer;\n                        width: 60px;\n                        margin-left: -30px;\u0027\u003e\n                KE1 0\n            \u003c/div\u003e\n            ",
+  "className": "empty",
+});
+        
+    
+        var popup_dd646e07bcfc79bf6245b1d479feb9c7 = L.popup({
+  "maxWidth": 350,
+});
+
+        
+            
+                var html_bfffd01e8f1e40c17048faf3177a98d5 = $(`<div id="html_bfffd01e8f1e40c17048faf3177a98d5" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; width: 320px; background-color: #f8f9fa; border-radius: 8px; padding: 12px;">                 <h3 style="margin: 0 0 10px 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">KE1 0</h3>                 <p style="margin: 8px 0;"><b>Total Capacity:</b> <span style="color: #e74c3c;">11.04 MW</span></p>                 <p style="margin: 8px 0;"><b>Number of Generators:</b> 2</p>                 <hr style="margin: 10px 0; border: none; border-top: 1px solid #ecf0f1;">                 <p style="margin: 8px 0; font-weight: bold; color: #34495e;">Power Mix Breakdown:</p>                 <table style="width: 100%; margin: 8px 0; border-collapse: collapse;">                                  <tr style="background-color: #ecf0f1;">                         <td style="padding: 6px 8px; text-align: left;">solar</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">9.05 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">81.9%</td>                     </tr>                                      <tr style="background-color: #ffffff;">                         <td style="padding: 6px 8px; text-align: left;">onwind</td>                         <td style="padding: 6px 8px; text-align: right; font-weight: bold;">2.00 MW</td>                         <td style="padding: 6px 8px; text-align: right; color: #3498db;">18.1%</td>                     </tr>                                  </table>             </div>             </div>`)[0];
+                popup_dd646e07bcfc79bf6245b1d479feb9c7.setContent(html_bfffd01e8f1e40c17048faf3177a98d5);
+            
+        
+
+        marker_078b19f01cfcf529645ee73381de0706.bindPopup(popup_dd646e07bcfc79bf6245b1d479feb9c7)
+        ;
+
+        
+    
+    
+                marker_078b19f01cfcf529645ee73381de0706.setIcon(div_icon_789ae0f8e02d283de7d347cab115b7cd);
+            
+</script>
+</html>
