@@ -1,0 +1,22 @@
+name,co2_emissions,color,nice_name
+nuclear,0.0,#ff9000,Nuclear
+coal,0.3361,#707070,Coal
+CCGT,0.198,#b80404,Combined-Cycle Gas
+geothermal,0.12,#ba91b1,Geothermal
+OCGT,0.198,#d35050,Open-Cycle Gas
+biomass,0.0,#0c6013,Biomass
+lignite,0.4069,#9e5a01,Lignite
+oil,0.2571,#262626,Oil
+hydro,0.0,#08ad97,Reservoir & Dam
+offwind-ac,0.0,#6895dd,Offshore Wind (AC)
+offwind-dc,0.0,#74c6f2,Offshore Wind (DC)
+onwind,0.0,#235ebc,Onshore Wind
+solar,0.0,#f9d002,Solar
+PHS,0.0,#08ad97,Pumped Hydro Storage
+ror,0.0,#4adbc8,Run of River
+AC,0.0,#70af1d,Ac
+DC,0.0,#8a1caf,Dc
+B2B,0.0,#70af1d,B2B
+battery,0.0,slategray,Battery Storage
+battery charger,0.0,slategray,battery charger
+battery discharger,0.0,slategray,battery discharger

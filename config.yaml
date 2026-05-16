@@ -13,14 +13,30 @@ countries: ["KE"]
 scenario:
   simpl: ['']
   ll: ['copt']  #cost optimality
-  clusters: [20]    # MUST be at least 2
+  clusters: [10]    # MUST be at least 2
   opts: [Co2L-3h]
   planning_horizons: [2030]
 
 clustering:
   spatial:
-    clusters: [20]
-    
+    clusters: [10]
+  focus_weights:
+    KE: 1.0  # or split by sub-network if multi-network
+  cluster_network:
+    algorithm: hac
+    feature: solar+onwind-time
+  
+# cluster_options:
+#   alternative_clustering: true   # use GADM boundaries instead of OSM topology
+#   distribute_cluster: ["load"]   # distribute clusters by load
+
+# build_shape_options:
+#   gadm_layer_id: 1               # level 1 = counties; gives you 47 possible units for Kenya
+#   update_file: false
+#   out_logging: true
+#   year: 2020
+#   nprocesses: 2
+#   geo_crs: "EPSG:4326"
 
 load_options:
   ssp: "ssp2-2.6"
@@ -45,16 +61,12 @@ renewable:
     cutout: cutout-2013-era5
     capacity_per_sqkm: 3        # MW per km² of eligible land
     natura: true                # respect protected area exclusions
-    copernicus:
-      grid_codes: [12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]
     clip_p_max_pu: 0.01         # minimum usable capacity factor
 
   solar:
     cutout: cutout-2013-era5
     capacity_per_sqkm: 4.6
     natura: true
-    copernicus:
-      grid_codes: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 
 #temporal range for the historical weather data
 snapshots:
@@ -74,6 +86,12 @@ electricity:
   estimate_renewable_capacities:
     enable: true
     stats: "irena"
+    year: 2024          # ADD THIS — latest IRENA year
+    p_nom_min: 1.0      # ADD THIS — existing capacity as hard floor
+    p_nom_max: false    # ADD THIS — no upper cap beyond technical potential
+    technology_mapping:  # ADD THIS BLOCK
+      Onshore: [onwind]
+      PV: [solar]
   extendable_carriers:
     Generator: [solar, onwind, geothermal, hydro, OCGT, coal] # Remove H2 and offwind
     StorageUnit: [battery]
@@ -82,7 +100,7 @@ electricity:
     activate: true
     epsilon_load: 0.10
   p_threshold_drop_isolated: 0.0    # drop buses with zero connected capacity
-  p_threshold_merge_isolated: 500   # merge islands below 500 MW into nearest bus
+  p_threshold_merge_isolated: 50   # merge islands below 50 MW into nearest bus
 
 
 

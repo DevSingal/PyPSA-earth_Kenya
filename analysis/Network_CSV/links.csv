@@ -1,0 +1,21 @@
+name,bus0,bus1,carrier,efficiency,capital_cost,p_nom_extendable,marginal_cost,p_nom_opt
+KE0 0 battery charger,KE0 0,KE0 0 battery,battery charger,0.96,173109.64178726997,True,0.009920077467375985,3.0101848349187636e-09
+KE0 1 battery charger,KE0 1,KE0 1 battery,battery charger,0.96,173109.64178726997,True,0.010792630954124482,3.009911684398248e-09
+KE0 2 battery charger,KE0 2,KE0 2 battery,battery charger,0.96,173109.64178726997,True,0.009380257209363606,3.010023621982068e-09
+KE0 3 battery charger,KE0 3,KE0 3 battery,battery charger,0.96,173109.64178726997,True,0.00941240930980738,3.010576215893173e-09
+KE0 4 battery charger,KE0 4,KE0 4 battery,battery charger,0.96,173109.64178726997,True,0.010033682620371806,3.0101792538961127e-09
+KE0 5 battery charger,KE0 5,KE0 5 battery,battery charger,0.96,173109.64178726997,True,0.009138502810520331,3.0102419769408924e-09
+KE0 6 battery charger,KE0 6,KE0 6 battery,battery charger,0.96,173109.64178726997,True,0.01051664063156824,3.0098999074764373e-09
+KE0 7 battery charger,KE0 7,KE0 7 battery,battery charger,0.96,173109.64178726997,True,0.010608893260563735,3.0101365373627187e-09
+KE0 8 battery charger,KE0 8,KE0 8 battery,battery charger,0.96,173109.64178726997,True,0.010784297873280505,3.009910327555823e-09
+KE1 0 battery charger,KE1 0,KE1 0 battery,battery charger,0.96,173109.64178726997,True,0.00910228999189938,107.47867734164795
+KE0 0 battery discharger,KE0 0 battery,KE0 0,battery discharger,0.96,0.0,True,0.009692680682985616,3.1356092030403787e-09
+KE0 1 battery discharger,KE0 1 battery,KE0 1,battery discharger,0.96,0.0,True,0.01026030450633768,3.1353246712481752e-09
+KE0 2 battery discharger,KE0 2 battery,KE0 2,battery discharger,0.96,0.0,True,0.010988884892469955,3.1354412728979877e-09
+KE0 3 battery discharger,KE0 3 battery,KE0 3,battery discharger,0.96,0.0,True,0.00917766700484962,3.1360168915553887e-09
+KE0 4 battery discharger,KE0 4 battery,KE0 4,battery discharger,0.96,0.0,True,0.009382026388508453,3.1356033894751177e-09
+KE0 5 battery discharger,KE0 5 battery,KE0 5,battery discharger,0.96,0.0,True,0.010043642552691702,3.1356687259800963e-09
+KE0 6 battery discharger,KE0 6 battery,KE0 6,battery discharger,0.96,0.0,True,0.010449281342618034,3.135312403621289e-09
+KE0 7 battery discharger,KE0 7 battery,KE0 7,battery discharger,0.96,0.0,True,0.009100163118941776,3.1355588930861655e-09
+KE0 8 battery discharger,KE0 8 battery,KE0 8,battery discharger,0.96,0.0,True,0.010217168475384817,3.1353232578706493e-09
+KE1 0 battery discharger,KE1 0 battery,KE1 0,battery discharger,0.96,0.0,True,0.010852488627174259,111.95695556421663

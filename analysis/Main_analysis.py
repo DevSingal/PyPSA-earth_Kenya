@@ -12,7 +12,7 @@ from folium import plugins
 # LOAD THE NETWORK
 # ============================================================================
 # Update the path to your final result file
-network_file = r"../results/2030_scenenario/networks/elec_s_20_ec_lcopt_Co2L-3H.nc"
+network_file = r"../results/2030_scenenario/networks/elec_s_10_ec_lcopt_Co2L-3H.nc"
 n = pypsa.Network(network_file)
 
 print("="*80)
@@ -28,12 +28,12 @@ print("="*80)
 
 # Get generators data
 generators = n.generators.copy()
-generators['Capacity_MW'] = generators['p_nom']
+generators['Capacity_MW'] = generators['p_nom_opt']
 
 # Group by technology type (filter out link-based assets for now)
 tech_capacity = generators.groupby('carrier')['Capacity_MW'].sum().sort_values(ascending=False)
 
-print("\nInstalled Capacity by Technology (MW):")
+print("\n Total Final Capacity by Technology (MW):")
 print("-" * 50)
 for tech, capacity in tech_capacity.items():
     print(f"  {tech:.<40} {capacity:>12.2f} MW")
@@ -52,7 +52,7 @@ print("="*80)
 
 # Storage from storage units
 storage_units = n.storage_units.copy()
-storage_capacity = storage_units[storage_units['p_nom'] > 0].copy()
+storage_capacity = storage_units[storage_units['p_nom_opt'] > 0].copy()
 
 print("\nStorage Units by Type (Power Capacity in MW):")
 print("-" * 50)
