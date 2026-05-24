@@ -609,7 +609,7 @@ def aggregate_to_substations(n, aggregation_strategies=dict(), buses_i=None):
         busmap,
         aggregate_generators_weighted=True,
         aggregate_generators_carriers=None,
-        aggregate_one_ports=["Load", "StorageUnit"],
+        aggregate_one_ports=["Load"],
         line_length_factor=1.0,
         line_strategies=line_strategies,
         bus_strategies=bus_strategies,

@@ -563,7 +563,7 @@ def clustering_for_n_clusters(
         busmap,
         aggregate_generators_weighted=True,
         aggregate_generators_carriers=aggregate_carriers,
-        aggregate_one_ports=["Load", "StorageUnit"],
+        aggregate_one_ports=["Load"],
         line_length_factor=line_length_factor,
         line_strategies=line_strategies,
         bus_strategies=bus_strategies,
