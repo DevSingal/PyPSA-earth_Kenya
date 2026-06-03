@@ -870,7 +870,7 @@ def merge_into_network(n, threshold, aggregation_strategies=dict()):
         busmap,
         aggregate_generators_weighted=True,
         aggregate_generators_carriers=None,
-        # aggregate_one_ports=["Load"]  # PATCHED: StorageUnit removed — PyPSA>=0.26 renamed 'p' to 'p_dispatch',  # TODO: restore when PyPSA version is updated
+        # aggregate_one_ports=["Load", "StorageUnit"],  # TODO: restore when PyPSA version is updated
         line_length_factor=1.0,
         line_strategies=line_strategies,
         bus_strategies=bus_strategies,
@@ -1086,14 +1086,6 @@ if __name__ == "__main__":
             logger.info(
                 f"clustering preparation (hac): aggregating {len(buses_i)} buses of type {carrier}."
             )
-            # WORKAROUND: Initialize 'p' column to prevent PyPSA 0.30+ KeyError
-            # WORKAROUND: Initialize missing columns to prevent PyPSA 0.30+ KeyErrors
-            for comp in [n.generators, n.loads, n.storage_units, n.lines, n.links]:
-                for attr in ['p', 'q', 'p_set', 'q_set']:
-                    if attr not in comp.columns:
-                        comp[attr] = 0.0
-
-            # Existing code at line 1093:
             n, busmap_hac = aggregate_to_substations(n, aggregation_strategies, buses_i)
             busmaps.append(busmap_hac)
 
@@ -1173,12 +1165,6 @@ if __name__ == "__main__":
         n = drop_isolated_networks(n, threshold=p_threshold_drop_isolated)
 
     if p_threshold_merge_isolated:
-        
-        # WORKAROUND 2: Re-initialize missing columns for the isolated networks step
-        for comp in [n.generators, n.loads, n.storage_units, n.lines, n.links]:
-            for attr in ['p', 'q', 'p_set', 'q_set']:
-                if attr not in comp.columns:
-                    comp[attr] = 0.0
         n, merged_nodes_map = merge_isolated_networks(
             n,
             threshold=p_threshold_merge_isolated,

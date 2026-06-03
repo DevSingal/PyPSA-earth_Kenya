@@ -15,7 +15,7 @@ scenario:
   ll: ['copt']
   clusters: [15]          # raised from 10 → 15: forces HAC to allocate a dedicated
                           # northern node; at 10 all clusters stayed south of 3.5°N
-  opts: [CCL-Co2L0.5-3h]  # CCL: enforces agg_p_nom_limits (wind minimum below)
+  opts: [Co2L0.5-3h]  # CCL: enforces agg_p_nom_limits (wind minimum below)
                            # Co2L0.5: cap emissions at 50% of co2base → optimizer
                            # must build new renewables to meet the constraint
   planning_horizons: [2030]
@@ -30,24 +30,27 @@ clustering:
                                  # Loiyangalani's CF ~0.62 is far from southern buses
                                  # so it will anchor its own cluster
 
+
+
+
 cluster_options:
   simplify_network:
-    to_substations: false
-    algorithm: kmeans
-    feature: solar+onwind-time
+    to_substations: false 
+    remove_stubs: false
+    algorithm: hac # <--- CHANGE 1: Switched from kmeans to hac
+    feature: solar+onwind-time 
     exclude_carriers: []
-    remove_stubs: true
     remove_stubs_across_borders: false
-    p_threshold_drop_isolated: 20
-    p_threshold_merge_isolated: 300
+    p_threshold_drop_isolated: false # <--- CHANGE 2: Set to false
+    p_threshold_merge_isolated: false # <--- CHANGE 3: Set to false
+    s_threshold_fetch_isolated: false 
   cluster_network:
-    algorithm: hac
+    algorithm: hac # <--- CHANGE 1: Switched from kmeans to hac
     feature: solar+onwind-time
     exclude_carriers: []
-  alternative_clustering: false
-  distribute_cluster: ["load"]
-  out_logging: true
-  focus_weights: false           # single-country run; focus_weights not needed
+  alternative_clustering: false 
+  distribute_cluster: ["load"] # Leave this as "load" to avoid the Python error!
+  out_logging: true          # single-country run; focus_weights not needed
   aggregation_strategies:
     generators:
       p_nom: sum
@@ -192,6 +195,7 @@ electricity:
     enable: true
     stats: "irena"
     year: 2023
+    expansion_limit: false
     p_nom_min: 1.0    # existing IRENA capacity becomes the p_nom_min floor
     p_nom_max: false  # p_nom_max comes from atlite land-use potential (no cap)
     technology_mapping:
@@ -199,13 +203,12 @@ electricity:
       PV: [solar]
 
   extendable_carriers:
-    Generator: [solar, onwind, geothermal, OCGT]
-    # removed: coal, hydro (hydro handled separately), offwind (landlocked)
-    # coal removed to prevent optimizer defaulting to cheap coal expansion
+    Generator: [solar, onwind, geothermal]
+    Line: [AC, DC] # <--- Add this to let the model upgrade transmission lines
     StorageUnit: [battery]
     Store: []
 
-  conventional_carriers: [nuclear, oil, OCGT, CCGT, coal, lignite, geothermal, biomass]
+  conventional_carriers: [oil, coal, geothermal, biomass]
   renewable_carriers: [solar, onwind, hydro]
 
   powerplants_filter: (DateOut >= 2024 or DateOut != DateOut) and (DateIn <= 2024 or DateIn != DateIn)
@@ -265,9 +268,9 @@ clean_osm_data_options:
 
 build_osm_network:
   group_close_buses: true
-  group_tolerance_buses: 5000
+  group_tolerance_buses: 35000  # Increased to 15km. Snaps dead-end lines to nearby substations.
   split_overpassing_lines: true
-  overpassing_lines_tolerance: 1
+  overpassing_lines_tolerance: 100
   force_ac: false
 
 base_network:
@@ -299,9 +302,8 @@ subregion:
 augmented_line_connection:
   add_to_snakefile: false
   connectivity_upgrade: 2
-  new_line_type: ["HVAC"]
+  new_line_type: ["HVAC", "HVDC"]
   min_expansion: 1
-  min_DC_length: 600
 
 # ── Solving ───────────────────────────────────────────────────────────────────
 solving:

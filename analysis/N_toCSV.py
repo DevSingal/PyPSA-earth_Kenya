@@ -22,7 +22,7 @@ def load_network(path: Path) -> pypsa.Network:
 
 
 
-net_path = "../results/2030_scenenario/networks/elec_s_10_ec_lcopt_Co2L-3h.nc"
+net_path = "../results/2030_scenenario/networks/elec_s_15_ec_lcopt_Co2L0.5-3h.nc"
 
 
 net = load_network(net_path)
