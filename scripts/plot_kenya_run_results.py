@@ -164,6 +164,14 @@ def generation_by_carrier(n: pypsa.Network) -> pd.Series:
     )
 
 
+def transmission_links(n: pypsa.Network) -> pd.DataFrame:
+    if n.links.empty or "carrier" not in n.links.columns:
+        return pd.DataFrame(index=n.links.index)
+    carriers = n.links.carrier.fillna("").astype(str).str.lower()
+    mask = carriers.isin({"dc", "b2b", "converter ac-dc", "hvdc"})
+    return n.links.loc[mask]
+
+
 def read_geodata(shapes_dir: Path, bus_regions_path: Path) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
     country = gpd.read_file(shapes_dir / "country_shapes.geojson").to_crs("EPSG:4326")
     gadm = gpd.read_file(shapes_dir / "gadm_shapes.geojson").to_crs("EPSG:4326")
@@ -287,6 +295,40 @@ def plot_cluster_map(
                 zorder=9,
             )
 
+    links = transmission_links(n)
+    if not links.empty:
+        link_flows = (
+            n.links_t.p0[links.index].abs().mean()
+            if not n.links_t.p0.empty
+            else pd.Series(0, index=links.index)
+        )
+        max_link_flow = max(float(link_flows.max()), 1.0)
+        for link_name, link in links.iterrows():
+            b0 = n.buses.loc[link.bus0]
+            b1 = n.buses.loc[link.bus1]
+            flow = float(link_flows.get(link_name, 0.0))
+            width = 1.0 + 4.2 * flow / max_link_flow
+            ax.plot(
+                [b0.x, b1.x],
+                [b0.y, b1.y],
+                color="#6A3D9A",
+                linewidth=width,
+                alpha=0.9,
+                linestyle=(0, (5, 2)),
+                zorder=5,
+            )
+            ax.text(
+                (b0.x + b1.x) / 2,
+                (b0.y + b1.y) / 2,
+                f"{link.carrier} {flow:.0f} MW avg",
+                fontsize=6.5,
+                color="#4A235A",
+                ha="center",
+                va="top",
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.78, "pad": 1.0},
+                zorder=9,
+            )
+
     bus_totals = cap.sum(axis=1) if not cap.empty else pd.Series(dtype=float)
     carriers = list(cap.columns)
 
@@ -370,6 +412,16 @@ def plot_cluster_map(
     ]
     line_handle = Line2D([0], [0], color="#2F2F2F", linewidth=1.8, label="AC line")
     region_handle = Line2D([0], [0], color="#9A9A93", linewidth=0.8, label="cluster boundary")
+    link_handle = Line2D(
+        [0],
+        [0],
+        color="#6A3D9A",
+        linewidth=2.2,
+        linestyle=(0, (5, 2)),
+        label="DC/link",
+    )
+    if not links.empty:
+        handles.append(link_handle)
     handles.extend([line_handle, region_handle])
 
     ax.legend(handles=handles, loc="lower left", frameon=False, ncol=2, title="Installed capacity")
