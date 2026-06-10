@@ -603,30 +603,42 @@ def attach_hydro(n, costs, ppl):
 
     if "hydro" in carriers and not hydro.empty:
         hydro_max_hours = c.get("hydro_max_hours")
-        hydro_stats = (
-            pd.read_csv(
-                snakemake.input.hydro_capacities,
-                comment="#",
-                na_values=["-"],
-                index_col=0,
-            )
-            .groupby("Country")
-            .sum()
-        )
-        e_target = hydro_stats["E_store[TWh]"].clip(lower=0.2) * 1e6
-        e_installed = hydro.eval("p_nom * max_hours").groupby(hydro.country).sum()
-        e_missing = e_target - e_installed
         missing_mh_i = hydro.query("max_hours.isnull()").index
 
         if hydro_max_hours == "energy_capacity_totals_by_country":
+            hydro_stats = (
+                pd.read_csv(
+                    snakemake.input.hydro_capacities,
+                    comment="#",
+                    na_values=["-"],
+                    index_col=0,
+                )
+                .groupby("Country")
+                .sum()
+            )
+            e_target = hydro_stats["E_store[TWh]"].clip(lower=0.2) * 1e6
+            e_installed = hydro.eval("p_nom * max_hours").groupby(hydro.country).sum()
+            e_missing = e_target - e_installed
             max_hours_country = (
                 e_missing / hydro.loc[missing_mh_i].groupby("country").p_nom.sum()
             )
 
         elif hydro_max_hours == "estimate_by_large_installations":
+            hydro_stats = (
+                pd.read_csv(
+                    snakemake.input.hydro_capacities,
+                    comment="#",
+                    na_values=["-"],
+                    index_col=0,
+                )
+                .groupby("Country")
+                .sum()
+            )
             max_hours_country = (
                 hydro_stats["E_store[TWh]"] * 1e3 / hydro_stats["p_nom_discharge[GW]"]
             )
+        else:
+            max_hours_country = pd.Series(dtype=float)
 
         max_hours_country.clip(lower=0, inplace=True)
 
@@ -639,7 +651,7 @@ def attach_hydro(n, costs, ppl):
                     ", ".join(missing_countries)
                 )
             )
-        hydro_max_hours_default = c.get("hydro_max_hours_default", 6.0)
+        hydro_max_hours_default = c.get("hydro_max_hours_default", hydro_max_hours)
         hydro_max_hours = hydro.max_hours.where(
             hydro.max_hours > 0, hydro.country.map(max_hours_country)
         ).fillna(hydro_max_hours_default)
