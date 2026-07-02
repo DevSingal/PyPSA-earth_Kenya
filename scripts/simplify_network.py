@@ -977,6 +977,14 @@ def merge_isolated_networks(n, threshold, aggregation_strategies=dict()):
     return clustering.network, busmap
 
 
+def ensure_pypsa_aggregation_columns(n):
+    """Add legacy static columns expected by PyPSA aggregation helpers."""
+    for comp in [n.generators, n.loads, n.storage_units, n.lines, n.links]:
+        for attr in ["p", "q", "p_set", "q_set"]:
+            if attr not in comp.columns:
+                comp[attr] = 0.0
+
+
 if __name__ == "__main__":
     if "snakemake" not in globals():
         from _helpers import mock_snakemake
@@ -1086,14 +1094,8 @@ if __name__ == "__main__":
             logger.info(
                 f"clustering preparation (hac): aggregating {len(buses_i)} buses of type {carrier}."
             )
-            # WORKAROUND: Initialize 'p' column to prevent PyPSA 0.30+ KeyError
-            # WORKAROUND: Initialize missing columns to prevent PyPSA 0.30+ KeyErrors
-            for comp in [n.generators, n.loads, n.storage_units, n.lines, n.links]:
-                for attr in ['p', 'q', 'p_set', 'q_set']:
-                    if attr not in comp.columns:
-                        comp[attr] = 0.0
-
-            # Existing code at line 1093:
+            # PyPSA's aggregation helpers still expect some legacy static columns.
+            ensure_pypsa_aggregation_columns(n)
             n, busmap_hac = aggregate_to_substations(n, aggregation_strategies, buses_i)
             busmaps.append(busmap_hac)
 
@@ -1173,12 +1175,8 @@ if __name__ == "__main__":
         n = drop_isolated_networks(n, threshold=p_threshold_drop_isolated)
 
     if p_threshold_merge_isolated:
-        
-        # WORKAROUND 2: Re-initialize missing columns for the isolated networks step
-        for comp in [n.generators, n.loads, n.storage_units, n.lines, n.links]:
-            for attr in ['p', 'q', 'p_set', 'q_set']:
-                if attr not in comp.columns:
-                    comp[attr] = 0.0
+        # PyPSA's aggregation helpers still expect some legacy static columns.
+        ensure_pypsa_aggregation_columns(n)
         n, merged_nodes_map = merge_isolated_networks(
             n,
             threshold=p_threshold_merge_isolated,
@@ -1187,6 +1185,8 @@ if __name__ == "__main__":
         busmaps.append(merged_nodes_map)
 
     if s_threshold_fetch_isolated:
+        # PyPSA's aggregation helpers still expect some legacy static columns.
+        ensure_pypsa_aggregation_columns(n)
         n, fetched_nodes_map = merge_into_network(
             n,
             threshold=s_threshold_fetch_isolated,
