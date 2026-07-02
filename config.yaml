@@ -5,7 +5,7 @@ version: 0.8.0
 tutorial: false
 
 run:
-  name: "2030_scenenario"
+  name: "kenya_laptop_first_run"
   shared_cutouts: true
 
 countries: ["KE"]
@@ -13,9 +13,9 @@ countries: ["KE"]
 scenario:
   simpl: ['']
   ll: ['copt']
-  clusters: [15]          # raised from 10 → 15: forces HAC to allocate a dedicated
+  clusters: [8]          # second laptop run: reuse existing inputs and solve an 8-cluster case
                           # northern node; at 10 all clusters stayed south of 3.5°N
-  opts: [Co2L0.5-3h]  # CCL: enforces agg_p_nom_limits (wind minimum below)
+  opts: [Co2L-3h]  # first laptop run: avoid custom CCL input while keeping a CO2-constrained case
                            # Co2L0.5: cap emissions at 50% of co2base → optimizer
                            # must build new renewables to meet the constraint
   planning_horizons: [2030]
@@ -23,7 +23,7 @@ scenario:
 # ── Clustering ────────────────────────────────────────────────────────────────
 clustering:
   spatial:
-    clusters: [15]
+    clusters: [8]
   cluster_network:
     algorithm: hac
     feature: solar+onwind-time   # groups buses by wind+solar resource similarity;
@@ -77,10 +77,11 @@ load_options:
 # ── Enable flags ──────────────────────────────────────────────────────────────
 enable:
   retrieve_databundle: false
+  download_osm_data: false
   build_natura_raster: false
   progress_bar: true
-  build_cutouts: false
-  retrieve_cost_data: false
+  build_cutout: false
+  retrieve_cost_data: true
   custom_busmap: false
 
 # ── Atlite / cutout ───────────────────────────────────────────────────────────
@@ -137,13 +138,11 @@ renewable:
       flowspeed: 1.0
     carriers: [ror, PHS, hydro]
     PHS_max_hours: 6
-    hydro_max_hours: "energy_capacity_totals_by_country"
+    hydro_max_hours: 6.0
     hydro_max_hours_default: 6.0
     clip_min_inflow: 1.0
     extendable: true
-    normalization:
-      method: eia
-      year: 2013
+    normalization: false
     multiplier: 1.1
 
 # ── Snapshots ─────────────────────────────────────────────────────────────────
@@ -189,7 +188,7 @@ electricity:
     file: data/agg_p_nom_minmax.csv
     include_existing: false   # false = only NEW build counts toward the minimum
 
-  custom_powerplants: "merge"
+  custom_powerplants: false
 
   estimate_renewable_capacities:
     enable: true
@@ -317,9 +316,20 @@ solving:
     skip_iterations: true
     track_iterations: false
   solver:
-    name: gurobi
-    options: gurobi-default
+    name: highs
+    options: highs-default
   solver_options:
+    highs-default:
+      threads: 4
+      solver: "ipm"
+      run_crossover: "on"
+      small_matrix_value: 1e-6
+      large_matrix_value: 1e15
+      primal_feasibility_tolerance: 1e-6
+      dual_feasibility_tolerance: 1e-6
+      ipm_optimality_tolerance: 1e-6
+      parallel: "on"
+      random_seed: 123
     gurobi-default:
       threads: 4
       method: 2

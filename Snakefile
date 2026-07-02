@@ -70,6 +70,28 @@ else:
 ATLITE_NPROCESSES = config["atlite"].get("nprocesses", 4)
 
 
+def needs_hydro_capacity_stats(config=config):
+    hydro = config.get("renewable", {}).get("hydro", {})
+    carriers = hydro.get("carriers", [])
+    return "hydro" in carriers and hydro.get("hydro_max_hours") in (
+        "energy_capacity_totals_by_country",
+        "estimate_by_large_installations",
+    )
+
+
+def hydro_normalization_method(config=config):
+    normalization = config.get("renewable", {}).get("hydro", {}).get("normalization")
+    return normalization.get("method") if isinstance(normalization, dict) else None
+
+
+def ccl_capacity_limits(w):
+    return (
+        config["electricity"]["agg_p_nom_limits"]["file"]
+        if "CCL" in w.opts.split("-")
+        else []
+    )
+
+
 wildcard_constraints:
     simpl="[a-zA-Z0-9]*|all",
     clusters="[0-9]+(m|flex)?|all|min",
@@ -87,6 +109,14 @@ if config["custom_rules"] is not []:
     for rule in config["custom_rules"]:
 
         include: rule
+
+
+rule all:
+    input:
+        expand(
+            "results/" + RDIR + "networks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}.nc",
+            **config["scenario"],
+        ),
 
 
 rule clean:
@@ -499,8 +529,17 @@ rule build_renewable_profiles:
         gebco="data/gebco/GEBCO_2025_sub_ice.nc",
         country_shapes="resources/" + RDIR + "shapes/country_shapes.geojson",
         offshore_shapes="resources/" + RDIR + "shapes/offshore_shapes.geojson",
-        hydro_capacities="data/hydro_capacities.csv",
-        eia_hydro_generation="data/eia_hydro_annual_generation.csv",
+        hydro_capacities=lambda w: (
+            "data/hydro_capacities.csv"
+            if w.technology == "hydro"
+            and hydro_normalization_method() == "hydro_capacities"
+            else []
+        ),
+        eia_hydro_generation=lambda w: (
+            "data/eia_hydro_annual_generation.csv"
+            if w.technology == "hydro" and hydro_normalization_method() == "eia"
+            else []
+        ),
         powerplants="resources/" + RDIR + "powerplants.csv",
         regions=lambda w: (
             "resources/" + RDIR + "bus_regions/regions_onshore.geojson"
@@ -534,7 +573,11 @@ rule build_powerplants:
     input:
         base_network="networks/" + RDIR + "base.nc",
         pm_config="configs/powerplantmatching_config.yaml",
-        custom_powerplants="data/custom_powerplants.csv",
+        custom_powerplants=(
+            "data/custom_powerplants.csv"
+            if config["electricity"].get("custom_powerplants", False)
+            else []
+        ),
         osm_powerplants="resources/" + RDIR + "osm/clean/all_clean_generators.csv",
         #gadm_shapes="resources/" + RDIR + "shapes/MAR2.geojson",
         #using this line instead of the following will test updated gadm shapes for MA.
@@ -586,7 +629,9 @@ rule add_electricity:
         #To use: downlaod file from the google drive and place it in resources/" + RDIR + "shapes/
         #Link: https://drive.google.com/drive/u/1/folders/1dkW1wKBWvSY4i-XEuQFFBj242p0VdUlM
         gadm_shapes="resources/" + RDIR + "shapes/gadm_shapes.geojson",
-        hydro_capacities="data/hydro_capacities.csv",
+        hydro_capacities=(
+            "data/hydro_capacities.csv" if needs_hydro_capacity_stats() else []
+        ),
         demand_profiles="resources/" + RDIR + "demand_profiles.csv",
     output:
         "networks/" + RDIR + "elec.nc",
@@ -851,7 +896,7 @@ if config["monte_carlo"]["options"].get("add_to_snakefile", False) == False:
             policy_config=config["policy_config"],
         input:
             network="networks/" + RDIR + "elec_s{simpl}_{clusters}_ec_l{ll}_{opts}.nc",
-            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
+            agg_p_nom_minmax=ccl_capacity_limits,  # copied into the shadow directory only when CCL constraints are enabled
         output:
             "results/" + RDIR + "networks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}.nc",
         log:
@@ -921,7 +966,7 @@ if config["monte_carlo"]["options"].get("add_to_snakefile", False) == True:
             network="networks/"
             + RDIR
             + "elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{unc}.nc",
-            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
+            agg_p_nom_minmax=ccl_capacity_limits,  # copied into the shadow directory only when CCL constraints are enabled
         output:
             "results/"
             + RDIR
@@ -1709,7 +1754,7 @@ if config["foresight"] == "overnight":
             + "prenetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}.csv",
             configs=SDIR + "configs/config.yaml",  # included to trigger copy_config rule
-            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
+            agg_p_nom_minmax=ccl_capacity_limits,  # copied into the shadow directory only when CCL constraints are enabled
         output:
             RESDIR
             + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
@@ -2179,7 +2224,7 @@ if config["foresight"] == "myopic":
             + "prenetworks-brownfield/elec_s{simpl}_{clusters}_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
             costs="resources/" + RDIR + "costs_{planning_horizons}.csv",
             configs=SDIR + "configs/config.yaml",  # included to trigger copy_config rule
-            agg_p_nom_minmax=config["electricity"]["agg_p_nom_limits"]["file"],  # ensure the CSV with capacity constraints is copied into the shadow directory (needed on Windows, since shadowed scripts can’t access files outside `input`)
+            agg_p_nom_minmax=ccl_capacity_limits,  # copied into the shadow directory only when CCL constraints are enabled
         output:
             network=RESDIR
             + "postnetworks/elec_s{simpl}_{clusters}_ec_l{ll}_{opts}_{sopts}_{planning_horizons}_{discountrate}_{demand}_{h2export}export.nc",
