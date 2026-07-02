@@ -69,4 +69,10 @@ backup*
 screenlog*
 
 # Exclude specific file paths
+!data/
+data/*
+!data/demand/
+!data/demand/unsd/
+!data/demand/unsd/paths/
 !data/demand/unsd/paths/Energy_Statistics_Database.xlsx
+!data/custom_powerplants.csv
