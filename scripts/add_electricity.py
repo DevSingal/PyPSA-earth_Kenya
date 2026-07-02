@@ -189,10 +189,20 @@ def load_costs(tech_costs, config, elec_config, Nyears=1):
 
     costs = costs.value.unstack().fillna(config["fill_values"])
 
+    def add_missing_overwrite_rows(overwrites):
+        nonlocal costs
+        missing = pd.Index(overwrites).difference(costs.index)
+        if missing.empty:
+            return
+        fill_values = pd.Series(config["fill_values"]).reindex(costs.columns)
+        costs = costs.reindex(costs.index.union(missing))
+        costs.loc[missing, :] = fill_values.values
+
     for attr in ("investment", "lifetime", "FOM", "VOM", "efficiency", "fuel"):
         overwrites = config.get(attr)
         if overwrites is not None:
             overwrites = pd.Series(overwrites)
+            add_missing_overwrite_rows(overwrites.index)
             costs.loc[overwrites.index, attr] = overwrites
             logger.info(
                 f"Overwriting {attr} of {overwrites.index} to {overwrites.values}"
@@ -258,6 +268,7 @@ def load_costs(tech_costs, config, elec_config, Nyears=1):
         overwrites = config.get(attr)
         if overwrites is not None:
             overwrites = pd.Series(overwrites)
+            add_missing_overwrite_rows(overwrites.index)
             costs.loc[overwrites.index, attr] = overwrites
             logger.info(
                 f"Overwriting {attr} of {overwrites.index} to {overwrites.values}"

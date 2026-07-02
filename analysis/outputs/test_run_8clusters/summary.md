@@ -3,22 +3,26 @@
 Network: unnamed
 Snapshots: 2920
 Buses: 8
-Lines: 5
-Generators: 21
-Storage units: 13
+Lines: 6
+Generators: 23
+Storage units: 12
 
 ## Installed generation capacity [MW]
 carrier
-solar         3955.115
-geothermal     954.253
-oil            674.100
-onwind         436.029
-ror            418.445
+geothermal         1667.210
+oil                 674.100
+solar               534.260
+onwind              436.029
+import_ethiopia     400.000
+ror                 225.000
+import_uganda        50.000
 
 ## Annual generation [GWh]
 carrier
-geothermal    1630.759
-solar         1283.903
-ror           1221.859
-oil             85.156
-onwind           0.034
+geothermal         3442.393
+ror                 657.000
+solar                62.305
+import_ethiopia       0.000
+import_uganda         0.000
+oil                   0.000
+onwind                0.000

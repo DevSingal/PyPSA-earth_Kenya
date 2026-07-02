@@ -44,6 +44,8 @@ TECH_COLORS = {
     "hydro": "#0072B2",
     "geothermal": "#D55E00",
     "oil": "#4D4D4D",
+    "import_uganda": "#7B3294",
+    "import_ethiopia": "#008837",
     "battery": "#CC79A7",
     "battery discharge": "#CC79A7",
     "hydro discharge": "#0072B2",
