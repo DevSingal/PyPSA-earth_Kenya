@@ -466,8 +466,9 @@ def attach_conventional_generators(
         .rename(index=lambda s: "C" + str(s))
     )
     ppl["efficiency"] = ppl.efficiency.fillna(ppl.efficiency)
-
+    ppl["p_nom"] = pd.to_numeric(ppl["p_nom"], errors="coerce")
     logger.info(
+        
         "Adding {} generators with capacities [GW] \n{}".format(
             len(ppl), ppl.groupby("carrier").p_nom.sum().div(1e3).round(2)
         )
