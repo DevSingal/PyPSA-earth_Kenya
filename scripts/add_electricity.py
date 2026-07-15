@@ -988,4 +988,21 @@ if __name__ == "__main__":
     else:
         logger.info("No generators or storage units found.")
 
+    logger.info("Overwriting default demand with pre-calculated 59-bus custom demand...")
+    
+    # Load your pre-split 59-bus data
+    # (Update the filename to match whatever you named your file)
+    df_custom_demand = pd.read_csv(
+        "data/custom_demand_profiles.csv", 
+        index_col="time", 
+        parse_dates=True,
+        dayfirst=True # Keep this if your dates are DD-MM-YYYY
+    )
+    
+    # Make sure the columns are strings so they match PyPSA's bus names perfectly
+    df_custom_demand.columns = df_custom_demand.columns.astype(str)
+    
+    # Overwrite the network's demand matrix directly
+    n.loads_t.p_set = df_custom_demand
+
     n.export_to_netcdf(snakemake.output[0])

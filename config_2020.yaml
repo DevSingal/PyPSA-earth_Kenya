@@ -51,7 +51,7 @@ load_options:
   ssp: "ssp2-2.6"
   prediction_year: 2030 # Scales GDP/Population demand drivers to 2020 levels [3, 7]
   weather_year: 2013
-  scale: 0.57
+  scale: 0.66
 
 enable:
   retrieve_databundle: false
@@ -238,6 +238,7 @@ transformers:
 
 solving:
   options:
+    custom_extra_functionality: scripts/apply_custom_demand.py
     formulation: kirchhoff
     load_shedding: false
     noisy_costs: true
