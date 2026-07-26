@@ -10,7 +10,7 @@ scenario:
   simpl: ['']
   ll: ['copt']
   clusters: [10]
-  opts: [Co2L-3h] 
+  opts: [3h] 
   planning_horizons: [2020] # Sets the investment year to 2020 [1, 2]
 
 clustering:
@@ -169,13 +169,7 @@ electricity:
     epsilon_load: 0.10
   p_threshold_drop_isolated: 0.0
   p_threshold_merge_isolated: false
-
-co2_budget:
-  enable: true
-  override_co2opt: true
-  co2base_value: co2limit
-  year:
-    2020: 1.0 # Enforces the baseline emissions without 2030 reduction constraints [13, 14]
+# Enforces the baseline emissions without 2030 reduction constraints [13, 14]
 
 clean_osm_data_options:
   names_by_shapes: true
@@ -238,7 +232,6 @@ transformers:
 
 solving:
   options:
-    custom_extra_functionality: scripts/apply_custom_demand.py
     formulation: kirchhoff
     load_shedding: false
     noisy_costs: true
