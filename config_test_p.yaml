@@ -1,0 +1,356 @@
+# SPDX-FileCopyrightText:  PyPSA-Earth and PyPSA-Eur Authors
+# SPDX-License-Identifier: CC0-1.0
+
+version: 0.8.0
+tutorial: false
+
+run:
+  name: "2020_baseline_test_p"
+  shared_cutouts: true
+
+countries: ["KE"]
+
+scenario:
+  simpl: ['']
+  ll: ['copt']
+  clusters: [10]          # second laptop run: reuse existing inputs and solve a 9-cluster case
+                          # northern node; at 10 all clusters stayed south of 3.5°N
+  opts: [Co2L-3h]  # first laptop run: avoid custom CCL input while keeping a CO2-constrained case
+                           # Co2L0.5: cap emissions at 50% of co2base → optimizer
+                           # must build new renewables to meet the constraint
+  planning_horizons: [2020]
+
+# ── Clustering ────────────────────────────────────────────────────────────────
+clustering:
+  spatial:
+    clusters: [10]
+  cluster_network:
+    algorithm: kmeans
+    feature: solar+onwind-time   # groups buses by wind+solar resource similarity;
+                                 # Loiyangalani's CF ~0.62 is far from southern buses
+                                 # so it will anchor its own cluster
+
+
+
+
+cluster_options:
+  simplify_network:
+    to_substations: false 
+    remove_stubs: false
+    algorithm: kmeans
+    feature: solar+onwind-time 
+    exclude_carriers: []
+    remove_stubs_across_borders: false
+    p_threshold_drop_isolated: false # <--- CHANGE 2: Set to false
+    p_threshold_merge_isolated: false # <--- CHANGE 3: Set to false
+    s_threshold_fetch_isolated: 0.35
+  cluster_network:
+    algorithm: hac
+    feature: solar+onwind-time
+    exclude_carriers: []
+  alternative_clustering: false 
+  distribute_cluster: ["load"] # Leave this as "load" to avoid the Python error!
+  out_logging: true          # single-country run; focus_weights not needed
+  aggregation_strategies:
+    generators:
+      p_nom: sum
+      p_nom_max: sum
+      p_nom_min: sum
+      p_min_pu: mean
+      p_max_pu: weighted_average
+      marginal_cost: mean
+      committable: any
+      ramp_limit_up: max
+      ramp_limit_down: max
+      efficiency: mean
+
+# focus_weights at top level (backward-compat key read by Snakefile as
+# config.get("focus_weights", None) — set to null here, single-country run)
+focus_weights:
+
+# ── Load ──────────────────────────────────────────────────────────────────────
+load_options:
+  ssp: "ssp2-2.6"
+  prediction_year: 2030
+  scale: 1.0
+
+# ── Enable flags ──────────────────────────────────────────────────────────────
+enable:
+  retrieve_databundle: false
+  download_osm_data: false
+  build_natura_raster: false
+  progress_bar: true
+  build_cutout: false
+  retrieve_cost_data: true
+  custom_busmap: false
+
+# ── Atlite / cutout ───────────────────────────────────────────────────────────
+atlite:
+  nprocesses: 4
+  cutouts:
+    cutout-2013-era5:
+      module: era5
+
+# ── Renewable resource config ─────────────────────────────────────────────────
+renewable:
+  onwind:
+    cutout: cutout-2013-era5
+    resource:
+      method: wind
+      turbine: Vestas_V112_3MW
+    capacity_per_sqkm: 3
+    copernicus:
+      # allow semi-arid open land in northern Kenya (Turkana/Marsabit county):
+      # codes 20=shrubs, 30=herbaceous, 40=cropland, 60=bare/sparse, 100=moss
+      # excludes urban (50) via distance buffer only
+      grid_codes: [20, 30, 40, 60, 100, 111, 112, 113, 114, 115, 116,
+                   121, 122, 123, 124, 125, 126]
+      distance: 1000
+      distance_grid_codes: [50]
+    natura: true
+    potential: simple   # 'simple' is more permissive than 'conservative';
+                        # northern Kenya has vast eligible land and simple
+                        # gives a more realistic p_nom_max signal there
+    clip_p_max_pu: 0.01
+    extendable: true
+
+  solar:
+    cutout: cutout-2013-era5
+    resource:
+      method: pv
+      panel: CSi
+      orientation: latitude_optimal
+    capacity_per_sqkm: 4.6
+    correction_factor: 0.854337
+    copernicus:
+      grid_codes: [20, 30, 40, 50, 60, 90, 100]
+    natura: true
+    potential: simple
+    clip_p_max_pu: 0.01
+    extendable: true
+
+  hydro:
+    cutout: cutout-2013-era5
+    hydrobasins_level: 6
+    resource:
+      method: hydro
+      hydrobasins: data/hydrobasins/hybas_world.shp
+      flowspeed: 1.0
+    carriers: [ror, PHS, hydro]
+    PHS_max_hours: 6
+    hydro_max_hours: 6.0
+    hydro_max_hours_default: 6.0
+    clip_min_inflow: 1.0
+    extendable: true
+    normalization: false
+    multiplier: 1.1
+
+# ── Snapshots ─────────────────────────────────────────────────────────────────
+snapshots:
+  start: "2013-01-01"
+  end: "2014-01-01"
+  inclusive: "left"
+
+# ── Costs ─────────────────────────────────────────────────────────────────────
+costs:
+  year: 2030
+  version: v0.5.0
+  output_currency: "EUR"
+  default_exchange_rate: 0.7532
+  future_exchange_rate_strategy: "reference"
+  fill_values:
+    FOM: 0
+    VOM: 0
+    efficiency: 1
+    fuel: 0
+    investment: 0
+    lifetime: 25
+    CO2 intensity: 0
+    discount rate: 0.089
+  marginal_cost:
+    import_uganda: 75.32     # 10 cUSD/kWh at 0.7532 EUR/USD
+    import_ethiopia: 48.958  # 6.5 cUSD/kWh at 0.7532 EUR/USD
+  capital_cost:
+    import_uganda: 0.0
+    import_ethiopia: 0.0
+  efficiency:
+    import_uganda: 1.0
+    import_ethiopia: 1.0
+
+# ── Electricity / optimization ────────────────────────────────────────────────
+electricity:
+  base_voltage: 380.
+  voltages: [132., 220., 300., 380., 500., 750.]
+
+  # co2base: Kenya power-sector CO2 baseline ~8 Mt/yr (IRENA/IEA 2022).
+  # Co2L0.5 in opts → limit = 0.5 × co2base = 4 Mt/yr.
+  # This is tight enough to force the optimizer to displace oil peakers
+  # with new wind/solar while still being physically achievable by 2030.
+  co2limit: 8.0e6   # fallback if no multiplier in Co2L wildcard (unused here)
+  co2base: 8.0e6    # 8 Mt CO2/yr — Kenya power sector baseline
+
+  # CCL capacity floor — read by add_CCL_constraints when "CCL" is in opts.
+  # The CSV file format is a MultiIndex: rows=(country,carrier), cols=(year,(min,max))
+  # Minimum 400 MW new onwind forces the optimizer to build wind beyond existing
+  # LTWP capacity. See data/agg_p_nom_minmax.csv (generated alongside this config).
+  agg_p_nom_limits:
+    file: data/agg_p_nom_minmax.csv
+    include_existing: false   # false = only NEW build counts toward the minimum
+
+  custom_powerplants: merge
+
+  estimate_renewable_capacities:
+    enable: true
+    stats: "irena"
+    year: 2023
+    expansion_limit: false
+    p_nom_min: 1.0    # existing IRENA capacity becomes the p_nom_min floor
+    p_nom_max: false  # p_nom_max comes from atlite land-use potential (no cap)
+    technology_mapping:
+      Onshore: [onwind]
+      PV: [solar]
+
+  extendable_carriers:
+    Generator: [solar, onwind, geothermal]
+    Line: [AC, DC] # <--- Add this to let the model upgrade transmission lines
+    StorageUnit: [battery]
+    Store: []
+
+  conventional_carriers: [oil, coal, geothermal, biomass, import_uganda, import_ethiopia]
+  renewable_carriers: [solar, onwind, hydro]
+
+  powerplants_filter: (DateOut >= 2024 or DateOut != DateOut) and (DateIn <= 2024 or DateIn != DateIn)
+
+  operational_reserve:
+    activate: true
+    epsilon_load: 0.05   # reduced from 0.10 → 0.05; 10% was over-constraining
+    epsilon_vres: 0.02   # share of VRE output held as reserve
+    contingency: 0
+
+  max_hours:
+    battery: 6
+    H2: 168
+
+  p_threshold_drop_isolated: 0.0
+  p_threshold_merge_isolated: 50
+
+# ── Lines ─────────────────────────────────────────────────────────────────────
+lines:
+  ac_types:
+    132.: "243-AL1/39-ST1A 20.0"
+    220.: "Al/St 240/40 2-bundle 220.0"
+    300.: "Al/St 240/40 3-bundle 300.0"
+    380.: "Al/St 240/40 4-bundle 380.0"
+    500.: "Al/St 240/40 4-bundle 380.0"
+    750.: "Al/St 560/50 4-bundle 750.0"
+  dc_types:
+    500.: "HVDC XLPE 1000"
+  s_max_pu: 0.7
+  s_nom_max: .inf
+  length_factor: 1.25
+  under_construction: "zero"
+
+links:
+  p_max_pu: 1.0
+  p_nom_max: .inf
+  under_construction: "zero"
+
+transformers:
+  x: 0.1
+  s_nom: 2000.
+  type: ""
+
+# ── OSM / network build options ───────────────────────────────────────────────
+clean_osm_data_options:
+  names_by_shapes: true
+  threshold_voltage: 51000
+  tag_substation: "transmission"
+  add_line_endings: true
+  generator_name_method: OSM
+  use_custom_lines: "OSM_only"
+  path_custom_lines: false
+  use_custom_substations: "OSM_only"
+  path_custom_substations: false
+  use_custom_cables: "OSM_only"
+  path_custom_cables: false
+
+build_osm_network:
+  group_close_buses: true
+  group_tolerance_buses: 35000  # Increased to 15km. Snaps dead-end lines to nearby substations.
+  split_overpassing_lines: true
+  overpassing_lines_tolerance: 100
+  force_ac: false
+
+base_network:
+  min_voltage_substation_offshore: 51000
+  min_voltage_rebase_voltage: 51000
+
+# ── Shape options ─────────────────────────────────────────────────────────────
+build_shape_options:
+  gadm_layer_id: 1
+  simplify_tolerance: 0.01
+  simplify_gadm: true
+  minarea: 0.01
+  update_file: false
+  out_logging: true
+  year: 2020
+  nprocesses: 3
+  worldpop_method: "standard"
+  gdp_method: "standard"
+  contended_flag: "set_by_country"
+
+subregion:
+  enable:
+    simplify_network: true
+    cluster_network: false
+  define_by_gadm: false
+  path_custom_shapes: false
+  tolerance: 100
+
+augmented_line_connection:
+  add_to_snakefile: false
+  connectivity_upgrade: 2
+  new_line_type: ["HVAC", "HVDC"]
+  min_expansion: 1
+
+# ── Solving ───────────────────────────────────────────────────────────────────
+solving:
+  options:
+    formulation: kirchhoff
+    load_shedding: false
+    noisy_costs: true
+    min_iterations: 4
+    max_iterations: 6
+    clip_p_max_pu: 0.01
+    skip_iterations: true
+    track_iterations: false
+  solver:
+    name: highs
+    options: highs-default
+  solver_options:
+    highs-default:
+      threads: 4
+      solver: "ipm"
+      run_crossover: "on"
+      small_matrix_value: 1e-6
+      large_matrix_value: 1e15
+      primal_feasibility_tolerance: 1e-6
+      dual_feasibility_tolerance: 1e-6
+      ipm_optimality_tolerance: 1e-6
+      parallel: "on"
+      random_seed: 123
+    gurobi-default:
+      threads: 4
+      method: 2
+      crossover: 0
+      BarConvTol: 1.e-6
+      Seed: 123
+      AggFill: 0
+      PreDual: 0
+      GURO_PAR_BARDENSETHRESH: 200
+
+# ── CRS ───────────────────────────────────────────────────────────────────────
+crs:
+  geo_crs: EPSG:4326
+  distance_crs: EPSG:3857
+  area_crs: ESRI:54009

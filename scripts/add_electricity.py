@@ -193,6 +193,14 @@ def load_costs(tech_costs, config, elec_config, Nyears=1):
         overwrites = config.get(attr)
         if overwrites is not None:
             overwrites = pd.Series(overwrites)
+            # Identify technologies in the config that aren't in the cost database
+            missing_techs = overwrites.index.difference(costs.index)
+
+            # Add empty rows for them so pandas doesn't throw a KeyError
+            for tech in missing_techs:
+                costs.loc[tech] = pd.NA
+
+            # Safely apply the overwrites
             costs.loc[overwrites.index, attr] = overwrites
             logger.info(
                 f"Overwriting {attr} of {overwrites.index} to {overwrites.values}"
@@ -988,21 +996,130 @@ if __name__ == "__main__":
     else:
         logger.info("No generators or storage units found.")
 
-    logger.info("Overwriting default demand with pre-calculated 59-bus custom demand...")
-    
-    # Load your pre-split 59-bus data
-    # (Update the filename to match whatever you named your file)
-    df_custom_demand = pd.read_csv(
-        "data/custom_demand_profiles.csv", 
-        index_col="time", 
-        parse_dates=True,
-        dayfirst=True # Keep this if your dates are DD-MM-YYYY
-    )
-    
-    # Make sure the columns are strings so they match PyPSA's bus names perfectly
-    df_custom_demand.columns = df_custom_demand.columns.astype(str)
-    
-    # Overwrite the network's demand matrix directly
-    n.loads_t.p_set = df_custom_demand
 
+    p_set_before = n.loads_t.p_set.copy()
+    
+    # Calculate network totals and spatial proportions before injection
+    total_mw_before = p_set_before.sum(axis=1)
+    mean_before = p_set_before.mean()
+    share_before = (mean_before / mean_before.sum()) * 100 # Spatial % share
+
+    # --- PRE-CLUSTERING NATIONAL DEMAND DISTRIBUTION ---
+    custom_demand_config = snakemake.config.get("load_options", {}).get("custom_demand", {})
+    
+    if custom_demand_config.get("enable", False):
+        filepath = custom_demand_config.get("filepath", "data/demand_profile_data_2020.csv")
+        scale_factor = float(custom_demand_config.get("scale_factor", 1.0))
+        
+        logger.info(f"Distributing custom national demand from {filepath} across pre-clustering buses...")
+        
+        # 1. Read the custom 1D CSV
+        df_custom = pd.read_csv(filepath, parse_dates=True, index_col="time")
+        
+        # Extract the 1D numpy array of the total load (ignoring the 2013 timestamps)
+        custom_total_mw = df_custom['total_load'].values * scale_factor
+        
+        # 2. Handle Temporal Alignment (Leap Year vs Non-Leap Year)
+        target_len = len(n.snapshots)
+        if len(custom_total_mw) != target_len:
+            logger.warning(f"Length mismatch: CSV has {len(custom_total_mw)} hours, network has {target_len}. Adjusting...")
+            if len(custom_total_mw) > target_len:
+                custom_total_mw = custom_total_mw[:target_len]
+            else:
+                custom_total_mw = np.pad(custom_total_mw, (0, target_len - len(custom_total_mw)), mode='edge')
+                
+        # 3. Extract the network's existing spatial population/GDP weights for the raw buses
+        # (This captures the relative sizes of the 30 pre-clustering buses)
+        if not n.loads_t.p_set.empty:
+            spatial_weights = n.loads_t.p_set.mean(axis=0)
+        else:
+            spatial_weights = n.loads.p_set.copy()
+            if spatial_weights.sum() == 0:
+                spatial_weights[:] = 1.0 # Fallback to uniform distribution if weights are missing
+                
+        # Normalize weights so they sum perfectly to 1.0
+        normalized_weights = spatial_weights / spatial_weights.sum()
+        
+        # 4. Matrix Multiplication: Broadcast hourly national totals across the 30 raw buses
+        new_p_set = pd.DataFrame(
+            np.outer(custom_total_mw, normalized_weights),
+            index=n.snapshots,
+            columns=n.loads.index
+        )
+        
+        # 5. Overwrite the network loads before it gets exported to the clustering script
+        n.loads_t.p_set = new_p_set
+        
+        
+        logger.info("Custom pre-clustering demand successfully mapped and scaled.")
+    # ---------------------------------------------------
+    
+    p_set_after = n.loads_t.p_set.copy()
+    
+    total_mw_after = p_set_after.sum(axis=1)
+    mean_after = p_set_after.mean()
+    share_after = (mean_after / mean_after.sum()) * 100 # Spatial % share
+    
+    
+    res_stats = {}
+    try:
+        # Use the variable already defined on line 12 of the PyPSA script
+        # Handle case where snakemake.input might return a list of paths
+        dynamic_path = demand_profiles[0] if isinstance(demand_profiles, list) else demand_profiles
+        
+        logger.info(f"Dynamically loading baseline demand profile from: {dynamic_path}")
+        df_resource = pd.read_csv(dynamic_path, index_col=0, parse_dates=True)
+        
+        # If it has multiple columns (e.g., per country), sum them for the national total
+        res_total = df_resource.sum(axis=1) if isinstance(df_resource, pd.DataFrame) else df_resource
+        
+        res_stats = {
+            'Mean (MW)': res_total.mean(),
+            'Peak (MW)': res_total.max(),
+            'Std Dev (MW)': res_total.std()
+        }
+    except Exception as e:
+        logger.warning(f"Failed to load dynamically located file {demand_profiles}: {e}")
+        res_stats = {'Mean (MW)': np.nan, 'Peak (MW)': np.nan, 'Std Dev (MW)': np.nan}
+
+    # =====================================================================
+    # --- 5. BUILD & LOG THE COMPARISON SUMMARY ---
+    # =====================================================================
+    logger.info("\n" + "="*30)
+    logger.info("NATIONAL DEMAND AGGREGATE COMPARISON")
+    logger.info("="*30)
+    
+    national_summary = pd.DataFrame({
+        'Source': ['Original Resources (Dynamic)', 'Network (Before Injection)', 'Network (After Injection)'],
+        'Mean (MW)': [res_stats['Mean (MW)'], total_mw_before.mean(), total_mw_after.mean()],
+        'Peak (MW)': [res_stats['Peak (MW)'], total_mw_before.max(), total_mw_after.max()],
+        'Std Dev (MW)': [res_stats['Std Dev (MW)'], total_mw_before.std(), total_mw_after.std()]
+    })
+    logger.info(f"\n{national_summary.to_string(index=False)}")
+
+    logger.info("\n" + "="*30)
+    logger.info("BUS-LEVEL PROPORTIONALITY CHECK (Sample of first 10 buses)")
+    logger.info("="*30)
+    
+    bus_summary = pd.DataFrame({
+        'Bus': n.loads.index,
+        'Mean Before (MW)': mean_before.values,
+        'Mean After (MW)': mean_after.values,
+        'Share Before (%)': share_before.values,
+        'Share After (%)': share_after.values
+    })
+    
+    proportions_match = np.allclose(bus_summary['Share Before (%)'], bus_summary['Share After (%)'], atol=1e-5)
+    
+    logger.info(f"\n{bus_summary.head(10).to_string(index=False)}")
+    
+    if proportions_match:
+        logger.info("\nSUCCESS: Spatial distribution percentages are mathematically IDENTICAL before and after injection.")
+    else:
+        logger.warning("\nWARNING: Spatial distribution percentages shifted during injection!")
+    logger.info("="*30 + "\n")
+
+    # =====================================================================
+    # --- 6. EXPORT NETWORK ---
+    # =====================================================================
     n.export_to_netcdf(snakemake.output[0])

@@ -16,20 +16,27 @@ scenario:
 clustering:
   spatial:
     clusters: [10]
+  cluster_network:
+    algorithm: kmeans # <--- CHANGE 1: Switched from kmeans to hac
+    feature: solar+onwind-time
+    exclude_carriers: []
+  
+cluster_options:
   simplify_network:
     to_substations: false 
     remove_stubs: false
-    algorithm: hac # <--- CHANGE 1: Switched from kmeans to hac
+    algorithm: kmeans # <--- CHANGE 1: Switched from kmeans to hac
     feature: solar+onwind-time 
     exclude_carriers: []
     remove_stubs_across_borders: false
-    p_threshold_drop_isolated: 0 # <--- CHANGE 2: Set to false
-    p_threshold_merge_isolated: 500 # <--- CHANGE 3: Set to 500
-    s_threshold_fetch_isolated: false 
+    p_threshold_drop_isolated: false # <--- CHANGE 2: Set to false
+    p_threshold_merge_isolated: false # <--- CHANGE 3: Set to 500
+    s_threshold_fetch_isolated: 0.35
   cluster_network:
     algorithm: hac # <--- CHANGE 1: Switched from kmeans to hac
     feature: solar+onwind-time
     exclude_carriers: []
+  
   alternative_clustering: false 
   distribute_cluster: ["load"] # Leave this as "load" to avoid the Python error!
   out_logging: true          # single-country run; focus_weights not needed
@@ -52,6 +59,11 @@ load_options:
   prediction_year: 2030 # Scales GDP/Population demand drivers to 2020 levels [3, 7]
   weather_year: 2013
   scale: 0.66
+  
+  custom_demand:
+    enable: true
+    filepath: "data/demand_profile_data_2020.csv"
+    scale_factor: 1.0
 
 enable:
   retrieve_databundle: false
@@ -64,9 +76,9 @@ enable:
 augmented_line_connection:
   add_to_snakefile: true  # If True, includes this rule to the workflow
   connectivity_upgrade: 2  # Min. lines connection per node, https://networkx.org/documentation/stable/reference/algorithms/generated/networkx.algorithms.connectivity.edge_augmentation.k_edge_augmentation.html#networkx.algorithms.connectivity.edge_augmentation.k_edge_augmentation
-  new_line_type: ["HVAC"]  # Expanded lines can be either ["HVAC"] or ["HVDC"] or both ["HVAC", "HVDC"]
+  new_line_type: ["HVAC", "HVDC"]  # Expanded lines can be either ["HVAC"] or ["HVDC"] or both ["HVAC", "HVDC"]
   min_expansion: 1  # [MW] New created line expands by float/int input
-  min_DC_length: 600  # [km] Minimum line length of DC line
+  
 
 
 atlite:
@@ -81,30 +93,37 @@ renewable:
     resource:
       method: wind
       turbine: Vestas_V112_3MW
-    capacity_per_sqkm: 3 # conservative, ScholzPhd Tab 4.3.1: 10MW/km^2
+    capacity_per_sqkm: 3
+    copernicus:
+      # allow semi-arid open land in northern Kenya (Turkana/Marsabit county):
+      # codes 20=shrubs, 30=herbaceous, 40=cropland, 60=bare/sparse, 100=moss
+      # excludes urban (50) via distance buffer only
+      grid_codes: [20, 30, 40, 60, 100, 111, 112, 113, 114, 115, 116,
+                   121, 122, 123, 124, 125, 126]
+      distance: 1000
+      distance_grid_codes: [50]
     natura: true
-    potential: simple # or conservative
-    clip_p_max_pu: 1.e-2
+    potential: simple   # 'simple' is more permissive than 'conservative';
+                        # northern Kenya has vast eligible land and simple
+                        # gives a more realistic p_nom_max signal there
+    clip_p_max_pu: 0.01
     extendable: true
+  
   solar:
     cutout: cutout-2013-era5
     resource:
       method: pv
       panel: CSi
-      orientation: latitude_optimal # will lead into optimal design
-        # slope: 0.  # slope: 0 represent a flat panel
-        # azimuth: 180.  # azimuth: 180 south orientation
-    capacity_per_sqkm: 4.6 # From 1.7 to 4.6 addresses issue #361
-    # Determined by comparing uncorrected area-weighted full-load hours to those
-    # published in Supplementary Data to
-    # Pietzcker, Robert Carl, et al. "Using the sun to decarbonize the power
-    # sector: The economic potential of photovoltaics and concentrating solar
-    # power." Applied Energy 135 (2014): 704-720.
+      orientation: latitude_optimal
+    capacity_per_sqkm: 4.6
     correction_factor: 0.854337
+    copernicus:
+      grid_codes: [20, 30, 40, 50, 60, 90, 100]
     natura: true
-    potential: simple # or conservative
-    clip_p_max_pu: 1.e-2
+    potential: simple
+    clip_p_max_pu: 0.01
     extendable: true
+
   hydro:
     cutout: cutout-2013-era5
     resource:
@@ -142,8 +161,18 @@ costs:
     lifetime: 25
     CO2 intensity: 0
     discount rate: 0.089
+  marginal_cost:
+    import_uganda: 75.32     # 10 cUSD/kWh at 0.7532 EUR/USD
+    import_ethiopia: 48.958  # 6.5 cUSD/kWh at 0.7532 EUR/USD
+  capital_cost:
+    import_uganda: 0.0
+    import_ethiopia: 0.0
+  efficiency:
+    import_uganda: 1.0
+    import_ethiopia: 1.0
 
 electricity:
+
   custom_powerplants: "replace"
   agg_p_nom_limits:
     file: data/agg_p_nom_minmax.csv
@@ -154,15 +183,17 @@ electricity:
     year: 2020 # Bounds your renewable capacities to exactly what existed in 2020 [4, 12]
     p_nom_min: 1.0      
     p_nom_max: false    
+    p_nom_extendable: false
   technology_mapping:  
     Onshore: [onwind]
     PV: [solar]
   extendable_carriers:
     Generator: []
-    StorageUnit: [battery]
-    Store: [battery]
+    Line: []
+    StorageUnit: []
+    Store: []
 
-  conventional_carriers: [nuclear, oil, coal, lignite, geothermal, biomass]
+  conventional_carriers: [oil, coal,  geothermal, biomass, import_uganda, import_ethiopia]
   renewable_carriers: [solar, onwind, hydro]
   operational_reserve:
     activate: false
@@ -173,7 +204,7 @@ electricity:
 
 clean_osm_data_options:
   names_by_shapes: true
-  threshold_voltage: 35000
+  threshold_voltage: 51000
   tag_substation: "transmission"
   add_line_endings: true
   generator_name_method: OSM
@@ -186,14 +217,14 @@ clean_osm_data_options:
 
 build_osm_network:
   group_close_buses: true
-  group_tolerance_buses: 15000  # Increased to 15km. Snaps dead-end lines to nearby substations.
+  group_tolerance_buses: 35000  # Increased to 15km. Snaps dead-end lines to nearby substations.
   split_overpassing_lines: true
   overpassing_lines_tolerance: 100
   force_ac: false
 
 base_network:
-  min_voltage_substation_offshore: 35000
-  min_voltage_rebase_voltage: 35000
+  min_voltage_substation_offshore: 51000
+  min_voltage_rebase_voltage: 51000
 
 build_shape_options:
   gadm_layer_id: 1
@@ -208,16 +239,31 @@ build_shape_options:
   gdp_method: "standard"
   contended_flag: "set_by_country"
 
+
+subregion:
+  enable:
+    simplify_network: true
+    cluster_network: false
+  define_by_gadm: false
+  path_custom_shapes: false
+  tolerance: 100
+
+# ── Lines ─────────────────────────────────────────────────────────────────────
 lines:
-  types:
+  ac_types:
+    132.: "243-AL1/39-ST1A 20.0"
     220.: "Al/St 240/40 2-bundle 220.0"
     300.: "Al/St 240/40 3-bundle 300.0"
     380.: "Al/St 240/40 4-bundle 380.0"
-  dc_type: "DC_custom_linetype"
+    500.: "Al/St 240/40 4-bundle 380.0"
+    750.: "Al/St 560/50 4-bundle 750.0"
+  dc_types:
+    500.: "HVDC XLPE 1000"
   s_max_pu: 0.7
   s_nom_max: .inf
   length_factor: 1.25
-  under_construction: "zero" # 'zero': set capacity to zero, 'remove': remove, 'keep': with full capacity
+  under_construction: "zero"
+
 
 links:
   p_max_pu: 1.0
@@ -230,27 +276,29 @@ transformers:
   s_nom: 2000.
   type: ""
 
+# ── Solving ───────────────────────────────────────────────────────────────────
 solving:
   options:
     formulation: kirchhoff
     load_shedding: false
     noisy_costs: true
-    min_iterations: 4
-    max_iterations: 6
+    min_iterations: 1
+    max_iterations: 2
     clip_p_max_pu: 0.01
     skip_iterations: true
     track_iterations: false
-    #nhours: 10
   solver:
     name: gurobi
-    threads: 4
-    method: 2 # barrier (=ipm)
-    crossover: 0
-    BarConvTol: 1.e-5
-    FeasibilityTol: 1.e-6
-    AggFill: 0
-    PreDual: 0
-    GURO_PAR_BARDENSETHRESH: 200
+    options: gurobi-default
+  solver_options:
+    gurobi-default:
+      threads: 4
+      Method: 2
+      Crossover: 0
+      BarConvTol: 1.e-4
+      OptimalityTol: 1.e-4
+      FeasibilityTol: 1.e-4
+      NumericFocus: 1
 
 crs:
   geo_crs: EPSG:4326

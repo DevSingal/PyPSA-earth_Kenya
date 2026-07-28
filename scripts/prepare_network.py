@@ -349,6 +349,7 @@ if __name__ == "__main__":
     opts = snakemake.wildcards.opts.split("-")
 
     n = pypsa.Network(snakemake.input[0])
+
     Nyears = n.snapshot_weightings.objective.sum() / 8760.0
     costs = load_costs(
         snakemake.input.tech_costs,
